@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>幼儿识字测验</title>
+    <link rel="stylesheet" href="//unpkg.com/element-ui@2.4.7/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+<script src="//unpkg.com/vue@2.5.17/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.4.7/lib/index.js"></script>
+<div id="app">
+
+    <el-row>
+        <el-col :span="6">
+            <el-input
+                    placeholder="请输入起始数"
+                    clearable
+                    v-model="minnum" controls-position="right" @change="handleChangeMinnum" :min="0"
+                    :max="1200">
+            </el-input>
+        </el-col>
+        <el-col :span="6">
+            <el-input
+                    placeholder="请输入结束数"
+                    clearable
+                    v-model="maxnum" controls-position="right" @change="handleChangeMaxnum" :min="0"
+                    :max="1200">
+            </el-input>
+        </el-col>
+
+        <el-col :span="6">
+            <el-button class="bt" type="primary" @click="generate()">生成</el-button>
+        </el-col>
+    </el-row>
+
+    <el-row :gutter="20">
+
+        <div class="grid-content bg-purple">{{ dic.pinyin }}</div>
+        <div class="grid-content-hanzi">{{ dic.hanzi }}</div>
+
+
+    </el-row>
+</div>
+
+
+</body>
+<script>
+
+
+    var Main = {
+        data() {
+            return {
+                minnum: localStorage.getItem("minnum"),
+                maxnum: localStorage.getItem("maxnum"),
+                dic: {},
+                items: []
+
+
+            }
+        },
+        mounted() {
+            this.getData();
+        },
+        methods: {
+             async getData() {
+                 let _this = this;
+                  await axios.get('./static/shizi.json').then(function (res) {
+                      console.log('resdata',res.data)
+                     _this.items = JSON.parse(res.data);
+                 }).catch(function (error) {
+                     console.log(error);
+                 });
+             },
+            handleChangeMinnum(value) {
+                if (value > this.maxnum) {
+                    return
+                }
+                localStorage.setItem("minnum", value);
+            },
+            handleChangeMaxnum(value) {
+                if (value < this.minnum) {
+                    return
+                }
+                localStorage.setItem("maxnum", value);
+            },
+            generate() {
+                console.log('this.items--->', this.items)
+                var arr = this.items.slice(this.minnum, this.maxnum);
+                console.log('arr--->', arr)
+                this.dic = arr[Math.floor(Math.random() * arr.length)];
+
+            }
+        }
+    };
+    var Ctor = Vue.extend(Main);
+    new Ctor().$mount('#app')
+
+</script>
+
+<style>
+    .el-row {
+        margin-bottom: 20px;
+    }
+
+    .el-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .el-col {
+        border-radius: 4px;
+    }
+
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+
+    .bg-purple {
+        background: #d3dce6;
+    }
+
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+
+    .grid-content {
+        font-size: 96px;
+        text-align: center
+    }
+
+    .grid-content-hanzi {
+        background: #d3dce6;
+        font-size: 340px;
+        text-align: center
+    }
+
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+
+    .bt {
+        width: 190px;
+        height: 80px
+    }
+
+    .el-input__inner {
+        height: 80px;
+    }
+
+
+</style>
+</html>
